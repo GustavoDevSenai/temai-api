@@ -1,0 +1,5 @@
+ALTER TABLE users
+    ADD COLUMN email VARCHAR(150);
+
+ALTER TABLE users
+    ADD COLUMN whatsapp VARCHAR(20);
