@@ -1,13 +1,15 @@
 package com.terabits.temai.service;
 
 
-import com.terabits.temai.dto.CreateUserRequest;
+import com.terabits.temai.dto.*;
 import com.terabits.temai.entity.User;
+import com.terabits.temai.exception.BusinessException;
 import com.terabits.temai.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.Optional;
+
 
 @Service
 public class UserService {
@@ -25,10 +27,10 @@ public class UserService {
 
     }
 
-    public User create(CreateUserRequest request){
+    public UserResponse create(CreateUserRequest request){
 
         if(userRepository.existsByPhone(request.phone())){
-            throw new RuntimeException("Telefone já cadastrado");
+            throw new BusinessException("Telefone já cadastrado");
         }
 
         User user = new User();
@@ -42,16 +44,43 @@ public class UserService {
                 passwordEncoder.encode(request.password())
         );
 
+        User savedUser = userRepository.save(user);
 
-        user.setCreatedAt(
-                LocalDateTime.now()
+        return new UserResponse(
+                savedUser.getId(),
+                savedUser.getName(),
+                savedUser.getPhone(),
+                savedUser.getCreatedAt(),
+                savedUser.getUpdatedAt()
+        );
+    }
+
+
+    public LoginResponse login(LoginRequest request){
+
+
+        Optional<User> userOptional = userRepository.findByPhone(request.phone());
+
+
+        if(userOptional.isEmpty()){
+            throw new RuntimeException("Telefone ou senha invalidos");
+
+        }
+
+        User user = userOptional.get();
+
+
+        if(!passwordEncoder.matches(request.password(),user.getPassword())){
+            throw new RuntimeException("Senha inválida");
+        }
+
+
+
+        return new LoginResponse(
+                user.getId(),
+                user.getName(),
+                user.getPhone()
         );
 
-
-        user.setUpdatedAt(
-                LocalDateTime.now()
-        );
-
-        return userRepository.save(user);
     }
 }

@@ -2,7 +2,8 @@ package com.terabits.temai.controller;
 
 
 import com.terabits.temai.dto.CreateUserRequest;
-import com.terabits.temai.entity.User;
+import com.terabits.temai.dto.UserResponse;
+
 import com.terabits.temai.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User create(
+    public UserResponse create(
             @RequestBody @Valid CreateUserRequest request
     ){
 
